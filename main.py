@@ -72,7 +72,7 @@ state_storage = StateMemoryStorage()
 
 
 # your bot token
-TOKEN = "token"
+TOKEN = "7641333049:AAFinIvDX9hRwXSTmMbIALnPkNh4kvh6N2o"
 bot = telebot.TeleBot(TOKEN, state_storage=state_storage)
 
 
@@ -1177,11 +1177,11 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
             
 
             success_text = (
-                f"{EMOJIS['success']} جاري {operation_type} الكود...\n\n"
-                f"{EMOJIS['info']} التقدم:\n"
-                f"├ {EMOJIS['info']} تم الانتهاء من: {current_chunk}/{total_chunks}\n"
+                f"{EMOJIS['success']} continued {operation_type} Code...\n\n"
+                f"{EMOJIS['info']} Progress:\n"
+                f"├ {EMOJIS['info']}It has been completed: {current_chunk}/{total_chunks}\n"
                 f"└ {progress_bar} {progress:.1%}\n\n"
-                f"{EMOJIS['processing']} الرجاء الانتظار..."
+                f"{EMOJIS['processing']}Please wait..."
             )
             
             try:
@@ -1199,18 +1199,18 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
 
     if failed_chunks:
         summary_text = (
-            f"{EMOJIS['warning']} اكتملت العملية مع بعض الأخطاء\n\n"
-            f"{EMOJIS['info']} ملخص النتائج:\n"
-            f"├ {EMOJIS['info']} الأجزاء الناجحة: {total_chunks - len(failed_chunks)}\n"
-            f"├ {EMOJIS['info']} الأجزاء الفاشلة: {len(failed_chunks)}\n"
-            f"└ {EMOJIS['info']} نسبة النجاح: {((total_chunks - len(failed_chunks)) / total_chunks):.1%}"
+            f"{EMOJIS['warning']} The process was completed with some errors\n\n"
+            f"{EMOJIS['info']}Summary of results:\n"
+            f"├ {EMOJIS['info']}Successful parts: {total_chunks - len(failed_chunks)}\n"
+            f"├ {EMOJIS['info']} Failed parts: {len(failed_chunks)}\n"
+            f"└ {EMOJIS['info']} Success rate: {((total_chunks - len(failed_chunks)) / total_chunks):.1%}"
         )
     else:
         summary_text = (
-            f"{EMOJIS['success']} اكتملت العملية بنجاح\n\n"
-            f"{EMOJIS['info']} ملخص النتائج:\n"
-            f"├ {EMOJIS['info']} إجمالي الأجزاء: {total_chunks}\n"
-            f"└ {EMOJIS['info']} نسبة النجاح: 100%"
+            f"{EMOJIS['success']}The process completed successfully\n\n"
+            f"{EMOJIS['info']}Summary of results:\n"
+            f"├ {EMOJIS['info']}Total parts: {total_chunks}\n"
+            f"└ {EMOJIS['info']}Success rate: 100%"
         )
     
     try:
@@ -1263,7 +1263,7 @@ def handle_all_messages(message):
     if not admin_panel.bot_data['is_active'] and not admin_panel.is_admin(message.from_user.id):
         bot.reply_to(
             message,
-            f"{EMOJIS['error']} عذراً، البوت متوقف حالياً"
+            f"{EMOJIS['error']}Sorry, the bot is currently down"
         )
         return
         
@@ -1271,7 +1271,7 @@ def handle_all_messages(message):
     if admin_panel.is_banned(message.from_user.id):
         bot.reply_to(
             message,
-            f"{EMOJIS['ban']} عذراً، أنت محظور من استخدام البوت"
+            f"{EMOJIS['ban']} Sorry, you are banned from using the bot"
         )
         return
         
@@ -1293,7 +1293,7 @@ def handle_docs(message):
         if not file_name.endswith(('.php', '.py', '.txt')):
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، يمكنني فقط معالجة ملفات PHP و Python و TXT"
+                f"{EMOJIS['error']} Sorry, I can only process PHP و Python و TXT"
             )
             return
             
@@ -1310,11 +1310,11 @@ def handle_docs(message):
     except Exception as e:
         bot.reply_to(
             message,
-            f"{EMOJIS['error']} عذراً، حدث خطأ أثناء معالجة الملف:\n`{str(e)}`"
+            f"{EMOJIS['error']}Sorry, an error occurred while processing the file:\n`{str(e)}`"
         )
-        log_status(f"خطأ في معالجة الملف: {str(e)}", "error")
+        log_status(f"Error processing file: {str(e)}", "error")
 
 if __name__ == "__main__":
-    print_box("بوت تحويل الكود من PHP إلى Python ", Colors.SUCCESS)
-    log_status("جاري تشغيل البوت...", "info")
+    print_box("Bot convert code from PHP to Python ", Colors.SUCCESS)
+    log_status("The bot is running....", "info")
     bot.infinity_polling()

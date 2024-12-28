@@ -137,7 +137,7 @@ def format_code(code):
         return format_code_block(code)
         
     except Exception as e:
-        log_status(f"خطأ في تنسيق الكود: {str(e)}", "error")
+        log_status(f"Code formatting error: {str(e)}", "error")
         return None
 
 def split_long_code(lines: list) -> list:
@@ -192,7 +192,7 @@ def get_request_id():
 
     json_data = {
         'id': '',
-        'p1': 'بايثون',
+        'p1': 'Python',
         'p2': code_description,
         'p3': '',
         'p4': '',
@@ -217,12 +217,12 @@ def get_request_id():
             if message_id:
                 return message_id
             else:
-                log_status("لم يتم العثور على message ID في الرد", "error")
+                log_status("Not found message ID In response", "error")
         else:
-            log_status(f"خطأ في الطلب: {response.status_code}", "error")
+            log_status(f"Request error: {response.status_code}", "error")
             
     except Exception as e:
-        log_status(f"خطأ في الاتصال: {str(e)}", "error")
+        log_status(f"Communication error: {str(e)}", "error")
     
     return None
 
@@ -256,19 +256,19 @@ def get_code(message_id, max_retries=3):
                 if code:
                     return code
                 else:
-                    log_status("لم يتم العثور على الكود في الصفحة", "error")
+                    log_status("The code was not found on the page", "error")
             else:
-                log_status(f"خطأ في الطلب: {response.status_code}", "error")
+                log_status(f"Request error: {response.status_code}", "error")
             
 
             if attempt < max_retries - 1:
                 wait_time = (attempt + 1) * 2  
                 
-                log_status(f"انتظار {wait_time} ثوان قبل المحاولة التالية  ...", "warning")
+                log_status(f"waiting {wait_time} seconds before the next attempt  ...", "warning")
                 time.sleep(wait_time)
                 
         except Exception as e:
-            log_status(f"خطأ في المحاولة {attempt + 1}: {str(e)}", "error")
+            log_status(f"Error in trying {attempt + 1}: {str(e)}", "error")
             if attempt < max_retries - 1:
                 time.sleep(2)
     
@@ -319,11 +319,11 @@ def extract_code_from_html(html_content):
             if text and len(text) > 50 and ('def ' in text or 'class ' in text or 'import ' in text):
                 return text
         
-        log_status("لم يتم العثور على الكود في الصفحة", "error")
+        log_status("The code was not found on the page", "error")
         return None
         
     except Exception as e:
-        log_status(f"خطأ في استخراج الكود: {str(e)}", "error")
+        log_status(f"Error extracting code: {str(e)}", "error")
         return None
 
 def get_next_chunk(code_lines: list, current_chunk: int) -> tuple[list, bool]:
@@ -347,13 +347,13 @@ def process_code_chunk(code_chunk: str, is_conversion: bool = False, max_retries
         try:
             global code_description
             if is_conversion:
-                code_description = "حول الكود من PHP إلى Python < هذا جزء من كود فقط ف حوله >\n\n" + code_chunk
+                code_description = "Convert the code from PHP to Python < This is just a piece of code so convert it >\n\n" + code_chunk
             else:
-                code_description = "حسن الكود المرسل واجعله بدون مشاكل < هذا جزء من كود فقط ف حسنه >\n\n" + code_chunk
+                code_description = "Improve the sent code and make it without problems < This is only part of the code, so improve it >\n\n" + code_chunk
             
             message_id = get_request_id()
             if not message_id:
-                log_status(f"فشل في الحصول على message ID (محاولة {attempt + 1}/{max_retries})", "error")
+                log_status(f"Failed to get message ID (attempt {attempt + 1}/{max_retries})", "error")
                 if attempt < max_retries - 1:
                     time.sleep(2)
                 continue
@@ -365,11 +365,11 @@ def process_code_chunk(code_chunk: str, is_conversion: bool = False, max_retries
                     return formatted_code
                     
             if attempt < max_retries - 1:
-                log_status(f"محاولة {attempt + 1} فشلت، جاري المحاولة مرة أخرى...", "warning")
+                log_status(f"attempt {attempt + 1} Failed, trying again...", "warning")
                 time.sleep(2)
                 
         except Exception as e:
-            log_status(f"خطأ في المحاولة {attempt + 1}: {str(e)}", "error")
+            log_status(f"Error in attempt {attempt + 1}: {str(e)}", "error")
             if attempt < max_retries - 1:
                 time.sleep(2)
     
@@ -379,7 +379,7 @@ def create_enhance_keyboard():
 
     keyboard = InlineKeyboardMarkup()
     enhance_button = InlineKeyboardButton(
-        text=f"{EMOJIS['enhance']} تحسين الكود",
+        text=f"{EMOJIS['enhance']} Improve the code",
         callback_data='enhance'
     )
     keyboard.add(enhance_button)
@@ -392,10 +392,10 @@ def handle_enhance_callback(call):
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
         text=(
-            f"{EMOJIS['info']} تحسين الملفات وحل المشاكل\n\n"
-            "~ سيتم تحسين الملف بالكامل\n"
-            "~ اذا كان الكود كبيرا يتم تقسيمه علي اجزاء\n\n"
-            f"{EMOJIS['file']} ارسل ملفك الآن..."
+            f"{EMOJIS['info']} Optimize files and solve problems\n\n"
+            "~ The file will be fully optimized\n"
+            "~If the code is large, it is divided into parts\n\n"
+            f"{EMOJIS['file']}Submit your file now..."
         ),
         reply_markup=None
     )
@@ -406,13 +406,13 @@ def send_welcome(message):
 
     try:
         user_id = message.from_user.id
-        username = message.from_user.username or "غير معروف"
+        username = message.from_user.username or "unknown"
         
 
         if admin_panel.is_banned(user_id):
             bot.reply_to(
                 message,
-                f"{EMOJIS['ban']} عذراً، أنت محظور من استخدام البوت"
+                f"{EMOJIS['ban']}Sorry, you are banned from using the bot"
             )
             return
             
@@ -420,8 +420,8 @@ def send_welcome(message):
         if not admin_panel.bot_data['is_active'] and not admin_panel.is_admin(user_id):
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، البوت متوقف حالياً\n"
-                f"{EMOJIS['info']} الرجاء المحاولة لاحقاً..."
+                f"{EMOJIS['error']} Sorry, the bot is currently down\n"
+                f"{EMOJIS['info']}Please try again later..."
             )
             return
             
@@ -431,9 +431,9 @@ def send_welcome(message):
             channels_text = "\n".join([f"• {channel}" for channel in not_subscribed])
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عزيزي المستخدم {message.from_user.first_name}, يجب عليك الاشتراك في القنوات التالية أولاً:\n\n"
+                f"{EMOJIS['error']}Dear user {message.from_user.first_name}, You must subscribe to the following channels first:\n\n"
                 f"{channels_text}\n\n"
-                f"{EMOJIS['info']} بعد الاشتراك اضغط /start"
+                f"{EMOJIS['info']} After subscribing, click /start"
             )
             return
             
@@ -457,11 +457,11 @@ def send_welcome(message):
             
             if admin_panel.notifications_enabled:
                 admin_notification = (
-                    f"{EMOJIS['info']} مستخدم جديد!\n\n"
-                    f"├ {EMOJIS['info']} المعرف: @{username}\n"
-                    f"├ {EMOJIS['info']} الاسم: {user_data['first_name']} {user_data['last_name']}\n"
-                    f"├ {EMOJIS['info']} الآيدي: {user_id}\n"
-                    f"└ {EMOJIS['info']} تاريخ الانضمام: {user_data['joined_date']}"
+                    f"{EMOJIS['info']} New user!\n\n"
+                    f"├ {EMOJIS['info']} id: @{username}\n"
+                    f"├ {EMOJIS['info']} the name: {user_data['first_name']} {user_data['last_name']}\n"
+                    f"├ {EMOJIS['info']} The hands: {user_id}\n"
+                    f"└ {EMOJIS['info']} Joining date: {user_data['joined_date']}"
                 )
                 
                 for admin_id in admin_panel.admins:
@@ -469,19 +469,19 @@ def send_welcome(message):
                         if admin_id != user_id: 
                             bot.send_message(admin_id, admin_notification)
                     except Exception as e:
-                        print(f"خطأ في إرسال إشعار للمشرف {admin_id}: {str(e)}")
+                        print(f"Error sending notification to admin {admin_id}: {str(e)}")
         
         keyboard = InlineKeyboardMarkup()
-        keyboard.add(InlineKeyboardButton("👨‍💻 DEV BOT", url="https://t.me/M1telegramM1"))
+        keyboard.add(InlineKeyboardButton("👨‍💻 DEV BOT", url="https://t.me/ziddo_beatz"))
             
         welcome_text = (
-            f"{EMOJIS['success']} مرحباً بك في بوت تحويل وتحسين الأكواد\n\n"
-            f"{EMOJIS['info']} معلومات المستخدم:\n"
-            f"├ {EMOJIS['info']} المعرف: @{username}\n"
-            f"└ {EMOJIS['info']} الحالة: {'مشرف' if admin_panel.is_admin(user_id) else 'مستخدم'}\n\n"
-            f"{EMOJIS['info']} الأوامر المتاحة:\n"
-            f"├ {EMOJIS['convert']} /php_to_python - تحويل من PHP إلى Python\n"
-            f"└ {EMOJIS['enhance']} /code_good - تحسين الكود وحل المشاكل\n"
+            f"{EMOJIS['success']}Welcome to the code conversion and optimization bot\n\n"
+            f"{EMOJIS['info']}User information:\n"
+            f"├ {EMOJIS['info']} ID: @{username}\n"
+            f"└ {EMOJIS['info']} the condition: {'Musharraf' if admin_panel.is_admin(user_id) else 'user'}\n\n"
+            f"{EMOJIS['info']} Available commands:\n"
+            f"├ {EMOJIS['convert']} /php_to_python - Convert from PHP to Python\n"
+            f"└ {EMOJIS['enhance']} /code_good - Improve code and solve problems\n"
             
         )
         
@@ -494,12 +494,12 @@ def send_welcome(message):
         
     except Exception as e:
         error_message = (
-            f"{EMOJIS['error']} عذراً، حدث خطأ غير متوقع\n\n"
-            f"{EMOJIS['info']} الرجاء المحاولة مرة أخرى"
+            f"{EMOJIS['error']}Sorry, an unexpected error occurred\n\n"
+            f"{EMOJIS['info']}Please try again"
         )
         
         bot.reply_to(message, error_message)
-        print(f"خطأ في رسالة البداية: {str(e)}")
+        print(f"Error in start message: {str(e)}")
 
 @bot.callback_query_handler(func=lambda call: call.data in ['php_to_python', 'enhance_code', 'help'])
 def handle_welcome_buttons(call):
@@ -510,7 +510,7 @@ def handle_welcome_buttons(call):
         if not admin_panel.bot_data['is_active'] and not admin_panel.is_admin(user_id):
             bot.answer_callback_query(
                 call.id,
-                f"{EMOJIS['error']} البوت متوقف حالياً",
+                f"{EMOJIS['error']}The bot is currently down",
                 show_alert=True
             )
             return
@@ -519,16 +519,16 @@ def handle_welcome_buttons(call):
         if admin_panel.is_banned(user_id):
             bot.answer_callback_query(
                 call.id,
-                f"{EMOJIS['ban']} أنت محظور من استخدام البوت",
+                f"{EMOJIS['ban']} You are banned from using the bot",
                 show_alert=True
             )
             return
             
         if call.data == 'php_to_python':
             bot.edit_message_text(
-                f"{EMOJIS['convert']} تحويل من PHP إلى Python\n\n"
-                f"{EMOJIS['file']} قم بإرسال ملف PHP للتحويل...\n"
-                f"{EMOJIS['warning']} يجب أن يكون الملف بامتداد .php",
+                f"{EMOJIS['convert']} Convert from PHP to Python\n\n"
+                f"{EMOJIS['file']} Submit the PHP file for conversion...\n"
+                f"{EMOJIS['warning']} The file must have a .php extension",
                 call.message.chat.id,
                 call.message.message_id,
                 reply_markup=create_back_keyboard()
@@ -537,9 +537,9 @@ def handle_welcome_buttons(call):
             
         elif call.data == 'enhance_code':
             bot.edit_message_text(
-                f"{EMOJIS['enhance']} تحسين الكود\n\n"
-                f"{EMOJIS['file']} قم بإرسال ملف الكود المراد تحسينه...\n"
-                f"{EMOJIS['info']} الملفات المدعومة:\n"
+                f"{EMOJIS['enhance']}Improve the code\n\n"
+                f"{EMOJIS['file']} Submit the code file to be improved...\n"
+                f"{EMOJIS['info']} Supported files:\n"
                 f"├ Python (.py)\n"
                 f"├ Text (.txt)",
                 call.message.chat.id,
@@ -550,17 +550,17 @@ def handle_welcome_buttons(call):
             
         elif call.data == 'help':
             help_text = (
-                f"{EMOJIS['info']} دليل استخدام البوت\n\n"
-                f"{EMOJIS['info']} الخطوات:\n"
-                f"├ 1. اختر نوع العملية (تحويل/تحسين)\n"
-                f"├ 2. أرسل الملف المطلوب\n"
-                f"├ 3. انتظر المعالجة\n"
-                f"└ 4. استلم النتيجة\n\n"
-                f"{EMOJIS['info']} ملاحظات هامة:\n"
-                f"├ {EMOJIS['info']} حجم الملف الأقصى: 20MB\n"
-                f"├ {EMOJIS['info']} يجب أن تكون الملفات نصية\n"
-                f"└ {EMOJIS['info']} تأكد من تشفير UTF-8\n\n"
-                f"{EMOJIS['info']} للمساعدة: @admin"
+                f"{EMOJIS['info']} Bot User Guide\n\n"
+                f"{EMOJIS['info']} Steps:\n"
+                f"├ 1. Choose the type of operation (conversion/enhancement)\n"
+                f"├ 2. Send the required file\n"
+                f"├ 3. Wait for processing\n"
+                f"└ 4. Receive the result\n\n"
+                f"{EMOJIS['info']} Important notes:\n"
+                f"├ {EMOJIS['info']} Maximum file size: 20MB\n"
+                f"├ {EMOJIS['info']} Files must be text\n"
+                f"└ {EMOJIS['info']} Make sure UTF-8 encoding\n\n"
+                f"{EMOJIS['info']} For help: @admin"
             )
             
             bot.edit_message_text(
@@ -573,11 +573,10 @@ def handle_welcome_buttons(call):
     except Exception as e:
         bot.answer_callback_query(
             call.id,
-            f"{EMOJIS['error']} حدث خطا الرجاء المحاولة مرة أخرى",
+            f"{EMOJIS['error']} An error occurred, please try again",
             show_alert=True
         )
-        log_status(f"خطأ في معالجة الأزرار: {str(e)}", "error")
-
+        log_status(f"Error processing buttons: {str(e)}", "error")
 def create_back_keyboard():
 
     keyboard = InlineKeyboardMarkup()
@@ -595,19 +594,19 @@ def back_to_main_menu(call):
     except Exception as e:
         bot.answer_callback_query(
             call.id,
-            f"{EMOJIS['error']} حدث خطا الرجاء المحاولة مرة أخرى",
+            f"{EMOJIS['error']} An error occurred, please try again",
             show_alert=True
         )
-        log_status(f"خطأ في العودة للقائمة الرئيسية: {str(e)}", "error")
+        log_status(f"Error returning to main menu: {str(e)}", "error")
 
 @bot.message_handler(commands=['php_to_python'])
 def request_php_file(message):
 
     bot.reply_to(
         message,
-        f"{EMOJIS['convert']} تحويل من PHP إلى Python\n\n"
-        f"{EMOJIS['file']} قم بإرسال ملف PHP للتحويل...\n"
-        f"{EMOJIS['warning']} يجب أن يكون الملف بامتداد .php"
+        f"{EMOJIS['convert']} Convert from PHP to Python\n\n"
+        f"{EMOJIS['file']} Submit PHP file for conversion...\n"
+        f"{EMOJIS['warning']} The file must have a .php extension"
     )
     bot.set_state(message.from_user.id, UserStates.waiting_for_python_file, message.chat.id)
 
@@ -615,12 +614,12 @@ def request_php_file(message):
 def request_enhance_file(message):
 
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(KeyboardButton(f"{EMOJIS['file']} إرسال ملف"))
+   keyboard.add(KeyboardButton(f"{EMOJIS['file']} Send File"))
     
     bot.send_message(
         message.chat.id,
-        f"{EMOJIS['info']} من فضلك قم بإرسال ملف الكود الذي تريد تحسينه...\n"
-        f"{EMOJIS['info']} يمكنك إرسال ملفات Python (.py) أو نصوص عادية (.txt)",
+        f"{EMOJIS['info']} Please send the code file you want to improve...\n"
+        f"{EMOJIS['info']} You can submit Python (.py) or plain text (.txt) files",
         reply_markup=keyboard
     )
     bot.set_state(message.from_user.id, UserStates.waiting_for_enhance_file, message.chat.id)
@@ -630,38 +629,39 @@ def handle_help_buttons(call):
 
     try:
         help_text = (
-            f"{EMOJIS['info']} كيفية استخدام البوت\n\n"
-            f"{EMOJIS['info']} الخطوة 1: اختيار الملف\n"
-            "├ اختر الملف المراد تحسينه\n"
-            "├ تأكد أن امتداد الملف مدعوم\n"
-            "└ تأكد أن حجم الملف مناسب\n\n"
-            f"{EMOJIS['info']} الخطوة 2: إرسال الملف\n"
-            "├ اضغط على 📎 في تيليجرام\n"
-            "├ اختر الملف من جهازك\n"
-            "└ انتظر حتى يتم رفع الملف\n\n"
-            f"{EMOJIS['info']} الخطوة 3: انتظار المعالجة\n"
-            "├ سترى تقدم العملية مباشرة\n"
-            "├ لا تغلق المحادثة\n"
-            "└ انتظر حتى تكتمل العملية\n\n"
-            f"{EMOJIS['info']} الخطوة 4: استلام النتيجة\n"
-            "├ ستستلم الملف المحسن\n"
-            "├ مع تقرير بالتحسينات\n"
-            "└ يمكنك استخدام الملف مباشرة"
-        )
+    f"{EMOJIS['info']} How to Use the Bot\n\n"
+    f"{EMOJIS['info']} Step 1: Select the File\n"
+    "├ Choose the file you want to enhance\n"
+    "├ Ensure the file format is supported\n"
+    "└ Ensure the file size is appropriate\n\n"
+    f"{EMOJIS['info']} Step 2: Send the File\n"
+    "├ Click on 📎 in Telegram\n"
+    "├ Select the file from your device\n"
+    "└ Wait for the file to upload\n\n"
+    f"{EMOJIS['info']} Step 3: Wait for Processing\n"
+    "├ You will see the progress directly\n"
+    "├ Do not close the chat\n"
+    "└ Wait until the process is complete\n\n"
+    f"{EMOJIS['info']} Step 4: Receive the Result\n"
+    "├ You will receive the enhanced file\n"
+    "├ Along with a report of improvements\n"
+    "└ You can use the file directly"
+)
+
         
         bot.edit_message_text(
             help_text,
             call.message.chat.id,
             call.message.message_id,
             reply_markup=InlineKeyboardMarkup().add(
-                InlineKeyboardButton(f"{EMOJIS['back']} رجوع", callback_data="back_to_main")
+                InlineKeyboardButton(f"{EMOJIS['back']} Reference", callback_data="back_to_main")
             )
         )
         
     except Exception as e:
         bot.answer_callback_query(
             call.id,
-            f"{EMOJIS['error']} عذراً، حدث خطأ. الرجاء المحاولة مرة أخرى"
+            f"{EMOJIS['error']} Sorry, an error occurred. Please try again"
         )
 
 @bot.callback_query_handler(func=lambda call: call.data == "back_to_main")
@@ -670,26 +670,26 @@ def back_to_main(call):
     try:
         markup = InlineKeyboardMarkup(row_width=2)
         markup.add(
-            InlineKeyboardButton(f"{EMOJIS['info']} كيفية الاستخدام", callback_data="how_to_use"),
-            InlineKeyboardButton(f"{EMOJIS['warning']} الأسئلة الشائعة", callback_data="faq")
-        )
-        
-        welcome_text = (
-            f"{EMOJIS['info']} تحسين الكود وحل المشاكل\n\n"
-            f"{EMOJIS['info']} كيفية الاستخدام:\n"
-            "1️⃣ قم بإرسال الملف المراد تحسينه\n"
-            "2️⃣ انتظر حتى يتم معالجة الملف\n"
-            "3️⃣ استلم النسخة المحسنة\n\n"
-            f"{EMOJIS['info']} الملفات المدعومة:\n"
-            "├ .py\n"
-            "├ .txt\n\n"
-            f"{EMOJIS['info']} سيتم تطبيق التحسينات التالية:\n"
-            "├ تحسين تنسيق الكود\n"
-            "├ إصلاح الأخطاء البرمجية\n"
-            "├ تحسين الأداء\n"
-            "└ تطبيق أفضل الممارسات\n\n"
-            f"{EMOJIS['file']} أرسل الملف الآن..."
-        )
+            InlineKeyboardButton(f"{EMOJIS['info']} How to Use", callback_data="how_to_use"),
+InlineKeyboardButton(f"{EMOJIS['warning']} FAQ", callback_data="faq")
+
+welcome_text = (
+    f"{EMOJIS['info']} Code Enhancement and Problem Solving\n\n"
+    f"{EMOJIS['info']} How to Use:\n"
+    "1️⃣ Send the file you want to enhance\n"
+    "2️⃣ Wait for the file to be processed\n"
+    "3️⃣ Receive the enhanced version\n\n"
+    f"{EMOJIS['info']} Supported Files:\n"
+    "├ .py\n"
+    "├ .txt\n\n"
+    f"{EMOJIS['info']} The following enhancements will be applied:\n"
+    "├ Code formatting improvements\n"
+    "├ Bug fixes\n"
+    "├ Performance optimization\n"
+    "└ Application of best practices\n\n"
+    f"{EMOJIS['file']} Send your file now..."
+)
+
         
         bot.edit_message_text(
             welcome_text,
@@ -701,7 +701,7 @@ def back_to_main(call):
     except Exception as e:
         bot.answer_callback_query(
             call.id,
-            f"{EMOJIS['error']} عذراً، حدث خطأ. الرجاء المحاولة مرة أخرى"
+            f"{EMOJIS['error']} Sorry, an error occurred. Please try again"
         )
 
 @bot.message_handler(content_types=['document'], state=UserStates.waiting_for_enhance_file)
@@ -718,8 +718,8 @@ def handle_enhance_file(message):
 
         bot.reply_to(
             message,
-            f"{EMOJIS['processing']} جاري استلام الملف...\n"
-            "انتظر قليلاً من فضلك",
+           f"{EMOJIS['processing']} Receiving file...\n"
+            "Wait a moment, please."
             parse_mode='Markdown'
         )
 
@@ -727,8 +727,8 @@ def handle_enhance_file(message):
         if not message.document:
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، لم يتم العثور على الملف\n"
-                "الرجاء إرسال الملف مرة أخرى",
+                f"{EMOJIS['error']} Sorry, file not found\n"
+                "Please send the file again",
                 parse_mode='Markdown'
             )
             return
@@ -737,9 +737,9 @@ def handle_enhance_file(message):
         if message.document.file_size > 20 * 1024 * 1024: 
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، حجم الملف كبير جداً\n\n"
-                f"{EMOJIS['info']} الحد الأقصى: 20 ميجابايت\n"
-                f"{EMOJIS['warning']} نصيحة: قم بتقسيم الملف إلى أجزاء أصغر",
+                f"{EMOJIS['error']} Sorry, the file size is too large\n\n"
+                f"{EMOJIS['info']} Maximum: 20 MB\n"
+                f"{EMOJIS['warning']} Tip: Split the file into smaller parts",
                 parse_mode='Markdown'
             )
             return
@@ -753,23 +753,23 @@ def handle_enhance_file(message):
             supported_files = "\n".join([f"├ {ext}" for ext in ['.py', '.txt']])
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، هذا النوع من الملفات غير مدعوم\n\n"
-                f"{EMOJIS['info']} الملفات المدعومة:\n"
+                f"{EMOJIS['error']} Sorry, this file type is not supported\n\n"
+                f"{EMOJIS['info']} Supported files:\n"
                 f"{supported_files}\n"
-                f"{EMOJIS['warning']} أرسل ملف بأحد هذه الامتدادات",
+                f"{EMOJIS['warning']} Send a file with one of these extensions",
                 parse_mode='Markdown'
             )
             return
 
 
         file_info_msg = (
-            f"{EMOJIS['file']} معلومات الملف\n\n"
-            f"├ {EMOJIS['info']} الاسم: `{file_name}`\n"
-            f"├ {EMOJIS['info']} الحجم: {format_size(message.document.file_size)}\n"
-            f"├ {EMOJIS['info']} النوع: {file_ext}\n"
-            f"└ {EMOJIS['info']} MIME: {message.document.mime_type}\n\n"
-            f"{EMOJIS['processing']} جاري التحميل..."
-        )
+            f"{EMOJIS['file']} File Information\n\n"
+f"├ {EMOJIS['info']} Name: `{file_name}`\n"
+f"├ {EMOJIS['info']} Size: {format_size(message.document.file_size)}\n"
+f"├ {EMOJIS['info']} Type: {file_ext}\n"
+f"└ {EMOJIS['info']} MIME: {message.document.mime_type}\n\n"
+f"{EMOJIS['processing']} Uploading..."
+
         
 
         loading_msg = bot.reply_to(
@@ -786,7 +786,7 @@ def handle_enhance_file(message):
                 
             except Exception as e:
                 print(f"Error getting file info: {e}")
-                raise Exception("فشل في الحصول على معلومات الملف")
+                raise Exception("Failed to get file information")
 
             try:
                 downloaded_file = bot.download_file(file_info.file_path)
@@ -794,12 +794,12 @@ def handle_enhance_file(message):
                 
             except Exception as e:
                 print(f"Error downloading file: {e}")
-                raise Exception("فشل في تحميل الملف")
+                raise Exception("Failed to download file")
             
 
             bot.edit_message_text(
                 f"{file_info_msg}\n"
-                f"{EMOJIS['processing']} جاري فحص الملف...\n"
+                f"{EMOJIS['processing']}The file is being scanned...\n"
                 f"{format_progress_bar(0.4)}",
                 chat_id=message.chat.id,
                 message_id=loading_msg.message_id,
@@ -825,9 +825,9 @@ def handle_enhance_file(message):
                 if not file_content:
                     bot.edit_message_text(
                         f"{file_info_msg}\n\n"
-                        f"{EMOJIS['error']} خطأ في قراءة الملف\n"
-                        f"{EMOJIS['warning']} الملف غير متوافق مع الترميزات المدعومة\n"
-                        f"{EMOJIS['info']} الرجاء التأكد من تشفير الملف بـ UTF-8",
+                        f"{EMOJIS['error']} Error reading file\n"
+                        f"{EMOJIS['warning']} The file is not compatible with supported codecs\n"
+                        f"{EMOJIS['info']} Please make sure the file is encoded in UTF-8",
                         chat_id=message.chat.id,
                         message_id=loading_msg.message_id,
                         parse_mode='Markdown'
@@ -836,8 +836,8 @@ def handle_enhance_file(message):
 
             bot.edit_message_text(
                 f"{file_info_msg}\n\n"
-                f"{EMOJIS['success']} تم التحميل بنجاح\n"
-                f"{EMOJIS['processing']} جاري بدء التحسين...\n"
+                f"{EMOJIS['success']} Uploaded successfully\n"
+                f"{EMOJIS['processing']} Starting optimization...\n"
                 f"{format_progress_bar(0.6)}",
                 chat_id=message.chat.id,
                 message_id=loading_msg.message_id,
@@ -850,12 +850,13 @@ def handle_enhance_file(message):
             print(f"Error in file processing: {e}") 
             error_msg = (
                 f"{file_info_msg}\n\n"
-                f"{EMOJIS['error']} فشل في معالجة الملف\n\n"
-                f"{EMOJIS['info']} السبب: {str(e)}\n"
-                f"{EMOJIS['warning']} الحلول المقترحة:\n"
-                f"{EMOJIS['info']} تأكد من اتصال الإنترنت\n"
-                f"{EMOJIS['info']} حاول تقليل حجم الملف\n"
-                f"{EMOJIS['info']} أعد المحاولة بعد قليل"
+f"{EMOJIS['error']} Failed to Process the File\n\n"
+f"{EMOJIS['info']} Reason: {str(e)}\n"
+f"{EMOJIS['warning']} Suggested Solutions:\n"
+f"{EMOJIS['info']} Ensure a stable internet connection\n"
+f"{EMOJIS['info']} Try reducing the file size\n"
+f"{EMOJIS['info']} Retry after a while"
+
             )
             
             bot.edit_message_text(
@@ -868,12 +869,13 @@ def handle_enhance_file(message):
     except Exception as e:
         print(f"Critical error: {e}") 
         error_message = (
-            f"{EMOJIS['error']} عذراً، حدث خطأ غير متوقع\n\n"
-            f"{EMOJIS['info']} السبب: {str(e)}\n\n"
-            f"{EMOJIS['warning']} الحلول المقترحة:\n"
-            f"{EMOJIS['info']} تأكد من صحة الملف\n"
-            f"{EMOJIS['info']} تأكد من حجم الملف\n"
-            f"{EMOJIS['info']} حاول مرة أخرى لاحقاً"
+            f"{EMOJIS['error']} Sorry, an unexpected error occurred\n\n"
+f"{EMOJIS['info']} Reason: {str(e)}\n\n"
+f"{EMOJIS['warning']} Suggested Solutions:\n"
+f"{EMOJIS['info']} Ensure the file is valid\n"
+f"{EMOJIS['info']} Check the file size\n"
+f"{EMOJIS['info']} Try again later"
+
         )
         
         bot.reply_to(
@@ -892,15 +894,15 @@ def handle_php_file(message):
         if not message.document.file_name.endswith('.php'):
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، يمكنني فقط تحويل ملفات PHP!\n"
-                f"{EMOJIS['info']} الرجاء إرسال ملف بامتداد .php"
+                f"{EMOJIS['error']} Sorry, I can only convert PHP files!\n"
+                f"{EMOJIS['info']} Please send a file with .php extension"
             )
             return
 
 
         loading_msg = bot.reply_to(
             message,
-            f"{EMOJIS['processing']} جاري تحميل الملف..."
+            f"{EMOJIS['processing']}Loading file..."
         )
 
 
@@ -910,8 +912,8 @@ def handle_php_file(message):
 
 
         bot.edit_message_text(
-            f"{EMOJIS['success']} تم تحميل الملف بنجاح!\n"
-            f"{EMOJIS['processing']} جاري بدء عملية التحويل...",
+           f"{EMOJIS['success']} The file was uploaded successfully!\n"
+            f"{EMOJIS['processing']} Starting conversion...",
             chat_id=message.chat.id,
             message_id=loading_msg.message_id
         )
@@ -920,16 +922,16 @@ def handle_php_file(message):
         process_file_for_conversion(file_content, message)
 
     except Exception as e:
-        error_message = f"{EMOJIS['error']} عذراً، حدث خطأ:\n`{str(e)}`"
+        error_message = f"{EMOJIS['error']} Sorry, an error occurred:\n`{str(e)}`"
         if "codec can't decode" in str(e):
             error_message = (
-                f"{EMOJIS['error']} عذراً، يبدو أن الملف يحتوي على نص غير متوافق.\n"
-                f"{EMOJIS['info']} الرجاء التأكد من أن الملف مشفر بـ UTF-8"
+                f"{EMOJIS['error']} Sorry, the file appears to contain incompatible text.\n"
+                f"{EMOJIS['info']} Please make sure the file is UTF-8 encoded"
             )
         elif "file too large" in str(e).lower():
             error_message = (
-                f"{EMOJIS['error']} عذراً، حجم الملف كبير جداً.\n"
-                f"{EMOJIS['info']} الرجاء تقسيم الملف إلى أجزاء أصغر"
+                f"{EMOJIS['error']} Sorry, the file size is too large.\n"
+                f"{EMOJIS['info']} Please split the file into smaller parts"
             )
             
         bot.reply_to(message, error_message)
@@ -953,13 +955,13 @@ def process_file_for_enhancement(file_content: str, message, file_name: str, fil
 
         status_message = bot.reply_to(
             message,
-            f"{EMOJIS['processing']} بدء عملية التحسين\n\n"
-            f"{EMOJIS['info']} معلومات الملف:\n"
-            f"├ {EMOJIS['info']} الاسم: {file_name}\n"
-            f"├ {EMOJIS['info']} النوع: {file_ext}\n"
-            f"├ {EMOJIS['info']} عدد الأسطر: {len(lines):,}\n"
-            f"└ {EMOJIS['info']} عدد الأجزاء: {total_chunks:,}\n\n"
-            f"{EMOJIS['processing']} جاري التحسين...\n"
+            f"{EMOJIS['processing']} Start the optimization process\n\n"
+            f"{EMOJIS['info']} File information:\n"
+            f"├ {EMOJIS['info']} Name: {file_name}\n"
+            f"├ {EMOJIS['info']} Type: {file_ext}\n"
+            f"├ {EMOJIS['info']} Number of lines: {len(lines):,}\n"
+            f"└ {EMOJIS['info']} Number of parts: {total_chunks:,}\n\n"
+            f"{EMOJIS['processing']} Optimizing...\n"
             f"{format_progress_bar(0)}"
         )
         
@@ -983,13 +985,13 @@ def process_file_for_enhancement(file_content: str, message, file_name: str, fil
                     message.chat.id,
                     f,
                     caption=(
-                        f"{EMOJIS['success']} تم تحسين الكود بنجاح\n\n"
-                        f"{EMOJIS['info']} ملخص التحسينات:\n"
-                        f"├ {EMOJIS['info']} تحسين تنسيق الكود\n"
-                        f"├ {EMOJIS['info']} إصلاح الأخطاء البرمجية\n"
-                        f"└ {EMOJIS['info']} تحسين الأداء\n"
+                        f"{EMOJIS['success']} Code optimized successfully\n\n"
+                        f"{EMOJIS['info']} Summary of improvements:\n"
+                        f"├ {EMOJIS['info']} Improve code format\n"
+                        f"├ {EMOJIS['info']} Bug fixes\n"
+                        f"└ {EMOJIS['info']} Performance improvement\n"
                         
-                        f"{EMOJIS['success']} يمكنك الآن استخدام النسخة المحسنة من الكود!"
+                        f"{EMOJIS['success']} You can now use the improved version of the code!"
                     )
                 )
             
@@ -997,22 +999,22 @@ def process_file_for_enhancement(file_content: str, message, file_name: str, fil
             os.remove(temp_file)
             
             bot.edit_message_text(
-                f"{EMOJIS['success']} تمت عملية التحسين بنجاح\n\n"
-                f"{EMOJIS['info']} تم إرسال الملف المحسن أعلاه.",
+                f"{EMOJIS['success']} Optimization completed successfully\n\n"
+                f"{EMOJIS['info']} The above optimized file has been sent.",
                 chat_id=message.chat.id,
                 message_id=status_message.message_id
             )
         else:
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، حدث خطأ أثناء تحسين الملف.\n"
-                f"{EMOJIS['info']} الرجاء المحاولة مرة أخرى."
+                f"{EMOJIS['error']} Sorry, an error occurred while optimizing the file.\n"
+                f"{EMOJIS['info']} Please try again."
             )
             
     except Exception as e:
         bot.reply_to(
             message,
-            f"{EMOJIS['error']} عذراً، حدث خطأ غير متوقع:\n`{str(e)}`"
+            f"{EMOJIS['error']} Sorry, an unexpected error occurred:\n`{str(e)}`"
         )
     finally:
         bot.delete_state(message.from_user.id, message.chat.id)
@@ -1027,11 +1029,11 @@ def process_file_for_conversion(file_content: str, message) -> None:
 
         status_message = bot.reply_to(
             message,
-            f"{EMOJIS['processing']} بدء عملية التحويل\n\n"
-            f"{EMOJIS['info']} معلومات الملف:\n"
-            f"├ {EMOJIS['info']} عدد الأسطر: {len(lines):,}\n"
-            f"└ {EMOJIS['info']} عدد الأجزاء: {total_chunks:,}\n\n"
-            f"{EMOJIS['processing']} جاري التحويل...\n"
+            f"{EMOJIS['processing']} Starting the conversion process\n\n"
+            f"{EMOJIS['info']} File information:\n"
+            f"├ {EMOJIS['info']} Number of lines: {len(lines):,}\n"
+            f"└ {EMOJIS['info']} Number of parts: {total_chunks:,}\n\n"
+            f"{EMOJIS['processing']} Converting...\n"
             f"{format_progress_bar(0)}"
         )
         
@@ -1058,13 +1060,13 @@ def process_file_for_conversion(file_content: str, message) -> None:
                     message.chat.id,
                     f,
                     caption=(
-                        f"{EMOJIS['success']} تم تحويل الكود بنجاح\n\n"
-                        f"{EMOJIS['info']} ملخص التحويل:\n"
-                        f"├ {EMOJIS['info']} تحويل الدوال والمتغيرات\n"
-                        f"├ {EMOJIS['info']} تحويل التراكيب البرمجية\n"
-                        f"├ {EMOJIS['info']} تحسين الأداء\n"
-                        f"└ {EMOJIS['info']} تطبيق معايير Python\n\n"
-                        f"{EMOJIS['success']} يمكنك الآن استخدام الكود في Python!"
+                        f"{EMOJIS['success']} The code was converted successfully\n\n"
+                        f"{EMOJIS['info']} Conversion summary:\n"
+                        f"├ {EMOJIS['info']} Converting functions and variables\n"
+                        f"├ {EMOJIS['info']} Converting syntax\n"
+                        f"├ {EMOJIS['info']} Performance improvement\n"
+                        f"└ {EMOJIS['info']} Python standards implementation\n\n"
+                        f"{EMOJIS['success']} You can now use the code in Python!"
                     )
                 )
             
@@ -1074,8 +1076,8 @@ def process_file_for_conversion(file_content: str, message) -> None:
             
 
             bot.edit_message_text(
-                f"{EMOJIS['success']} تمت عملية التحويل بنجاح\n\n"
-                f"{EMOJIS['info']} تم إرسال الملف المحول أعلاه.",
+                f"{EMOJIS['success']} The conversion was completed successfully\n\n"
+                f"{EMOJIS['info']} The above converted file has been sent.",
                 chat_id=message.chat.id,
                 message_id=status_message.message_id
             )
@@ -1083,14 +1085,14 @@ def process_file_for_conversion(file_content: str, message) -> None:
 
             bot.reply_to(
                 message,
-                f"{EMOJIS['error']} عذراً، حدث خطأ أثناء تحويل الملف.\n"
-                f"{EMOJIS['info']} الرجاء المحاولة مرة أخرى."
+                f"{EMOJIS['error']} Sorry, an error occurred while converting the file.\n"
+                f"{EMOJIS['info']} Please try again."
             )
             
     except Exception as e:
         bot.reply_to(
             message,
-            f"{EMOJIS['error']} عذراً، حدث خطأ غير متوقع:\n`{str(e)}`"
+            f"{EMOJIS['error']} Sorry, an unexpected error occurred:\n`{str(e)}`"
         )
     finally:
 
@@ -1102,7 +1104,7 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
     total_chunks = (len(code_lines) + CHUNK_SIZE - 1) // CHUNK_SIZE
     failed_chunks = []
     
-    operation_type = "تحويل" if is_conversion else "تحسين"
+   operation_type = "conversion" if is_conversion else "optimization"
     
     while user_current_chunk[user_id] < total_chunks:
         current_chunk = user_current_chunk[user_id] + 1
@@ -1112,11 +1114,11 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
         progress = current_chunk / total_chunks
         progress_bar = format_progress_bar(progress)
         status_text = (
-            f"{EMOJIS['processing']} جاري {operation_type} الكود...\n\n"
-            f"{EMOJIS['info']} التقدم:\n"
-            f"├ {EMOJIS['info']} الجزء الحالي: {current_chunk}/{total_chunks}\n"
+            f"{EMOJIS['processing']} running {operation_type} code...\n\n"
+            f"{EMOJIS['info']} Progress:\n"
+            f"├ {EMOJIS['info']} Current Chunk: {current_chunk}/{total_chunks}\n"
             f"└ {progress_bar} {progress:.1%}\n\n"
-            f"{EMOJIS['processing']} الرجاء الانتظار..."
+            f"{EMOJIS['processing']} Please wait...”
         )
         
         try:
@@ -1140,11 +1142,11 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
             
 
             failure_text = (
-                f"{EMOJIS['warning']} تنبيه: فشل في {operation_type} الجزء {current_chunk}\n\n"
-                f"{EMOJIS['info']} التقدم:\n"
-                f"├ {EMOJIS['info']} الأجزاء الفاشلة: {len(failed_chunks)}\n"
+                f"{EMOJIS['warning']} Warning: Failed in {operation_type} part {current_chunk}\n\n"
+                f"{EMOJIS['info']} Progress:\n"
+                f"├ {EMOJIS['info']} Failed Chunks: {len(failed_chunks)}\n"
                 f"└ {progress_bar} {progress:.1%}\n\n"
-                f"{EMOJIS['processing']} جاري المتابعة..."
+                f"{EMOJIS['processing']} Continuing..."
             )
             
             try:
@@ -1159,11 +1161,11 @@ def process_file_chunks(message, code_lines: list, status_message, is_conversion
 
             if len(failed_chunks) > 3:
                 error_text = (
-                    f"{EMOJIS['error']} توقفت العملية\n\n"
-                    f"{EMOJIS['info']} تفاصيل الخطأ:\n"
-                    f"├ {EMOJIS['info']} عدد الأجزاء الفاشلة: {len(failed_chunks)}\n"
-                    f"└ {EMOJIS['info']} الأجزاء: {', '.join(map(str, failed_chunks))}\n\n"
-                    f"{EMOJIS['processing']} الرجاء المحاولة مرة أخرى"
+                   f"{EMOJIS['error']} The process has stopped\n\n"
+                    f"{EMOJIS['info']} Error details:\n"
+                    f"├ {EMOJIS['info']} Number of failed chunks: {len(failed_chunks)}\n"
+                    f"└ {EMOJIS['info']} Chunks: {', '.join(map(str, failed_chunks))}\n\n"
+                    f"{EMOJIS['processing']} Please try again"
                 )
                 
                 bot.edit_message_text(
